@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">SmartCardReader</string>
+    <string name="waiting">waiting</string>
+    <string name="approachNfc">Approach a NFC tag!</string>
+</resources>
