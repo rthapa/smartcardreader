@@ -29,6 +29,11 @@ Add a UI to navigate between files in the smart card and functions to read or wr
 <img  width="260px" src="/docs/discovered.png">
 </p>
 
+### Testing
+Tested with following  ISO 7816-4 compliant device
+* [HCE reader](https://developer.android.com/samples/CardReader/index.html) HCE reader example
+* MIFARE® Desfire Ev1 4K ISO Cards
+
 ### Acknowledgments
 
 * [CardWerk](http://www.cardwerk.com/smartcards/smartcard_standard_ISO7816-4.aspx) ISO 7816-4 Documentation 
