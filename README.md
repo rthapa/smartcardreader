@@ -20,7 +20,15 @@ When a Smart Card is approached the code looks for aid "F222222222" and selects 
  
 I'll be adding a UI to navigate between files in the smart card and functions to read or write to file.
 
-## Acknowledgments
+### Screenshots
+
+<p>
+      <img align="left" width="270px" src="/docs/menu.png">
+      <img align="left" width="270px" src="/docs/scaning.png">
+      <img align="left" width="270px" src="/docs/discovered.png">
+</p>
+
+### Acknowledgments
 
 * [CardWerk](http://www.cardwerk.com/smartcards/smartcard_standard_ISO7816-4.aspx) ISO 7816-4 Documentation 
 * [HCE reader](https://developer.android.com/samples/CardReader/index.html) HCE reader example
