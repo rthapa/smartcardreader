@@ -31,7 +31,7 @@ Add a UI to navigate between files in the smart card and functions to read or wr
 
 ### Testing
 Tested with following  ISO 7816-4 compliant device
-* [HCE reader](https://developer.android.com/samples/CardReader/index.html) HCE reader example
+* [HCE](https://developer.android.com/samples/CardEmulation/index.html) Host Card Emulation
 * MIFARE® Desfire Ev1 4K ISO Cards
 
 ### Acknowledgments
