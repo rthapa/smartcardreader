@@ -6,7 +6,7 @@ ISO 7816-4 support.
 ### Smart Card File Structure
 
 This project assumes that the smart card has the following file structure and does not need to authenticate to access any files.
-When a Smart Card is approached the code looks for aid "F222222222" and selects the file by id "0001" and returns the string data.
+When a Smart Card is approached the code looks for aid "F222222222" and selects the file by id "0001" and returns the hex data as string.
 
 ```
 [ Master File ]
