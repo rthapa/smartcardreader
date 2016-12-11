@@ -5,6 +5,8 @@ import android.nfc.Tag;
 import android.nfc.tech.IsoDep;
 import android.util.Log;
 
+import com.example.m1alesis.smartcardreader.util.ApduCommand;
+
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
@@ -14,6 +16,7 @@ import java.util.Arrays;
  */
 public class CardReader implements NfcAdapter.ReaderCallback{
     private static final String TAG = "CardReader";
+
     /* AID for our card service. */
     private static final String SAMPLE_LOYALTY_CARD_AID = "F222222222";
     /*File ID if we need to fetch from actual card*/

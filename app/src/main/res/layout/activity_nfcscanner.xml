@@ -23,6 +23,41 @@
         android:layout_marginTop="20dp"
         android:id="@+id/textView" />
 
+    <LinearLayout
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:id="@+id/loadingAnimation">
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:layout_gravity="center_horizontal" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Detecting card reader"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center"
+            android:textSize="16dp"
+            android:textColor="#fff"
+            android:layout_marginTop="5dp"
+            android:textIsSelectable="true" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/acrDetected"
+        android:gravity="center"
+        android:textSize="16dp"
+        android:textColor="#0ff116"
+        android:layout_marginTop="5dp"
+        android:visibility="gone"
+        android:textIsSelectable="true"
+        android:id="@+id/acrActiveMessage"/>
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -30,7 +65,7 @@
         android:gravity="center"
         android:textSize="16dp"
         android:textColor="#fff"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="20dp"
         android:textIsSelectable="true" />
 
     <TextView
@@ -43,4 +78,5 @@
         android:textStyle="bold"
         android:layout_marginTop="20dp"
         android:id="@+id/tagDataInput" />
+
 </LinearLayout>

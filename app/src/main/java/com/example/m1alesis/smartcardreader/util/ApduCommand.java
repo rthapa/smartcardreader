@@ -1,4 +1,4 @@
-package com.example.m1alesis.smartcardreader;
+package com.example.m1alesis.smartcardreader.util;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class ApduCommand {
     private String classStr, instructionStr, param1Str, param2Str;
-    private String aid;
+    private String aid = "F222222222";
 
     /*APDU instructions*/
     public Map<String, String> instructionArr = new HashMap<String, String>();
