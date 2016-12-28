@@ -2,6 +2,8 @@ package com.example.m1alesis.smartcardreader;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -13,6 +15,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -27,6 +30,10 @@ import com.example.m1alesis.smartcardreader.acrx.Acr;
  * Created by m1alesis on 21/11/2016.
  */
 public class NFCScanner extends AppCompatActivity implements CardReader.ScanCallback, Acr.AcrStatus  {
+    /*notification*/
+    NotificationManager mNotifyMgr;
+    Notification notification;
+    private static final int NOTIFICATION_ID = 123;
 
     /*Acr*/
     private MusicIntentReceiver myReceiver;
@@ -53,6 +60,20 @@ public class NFCScanner extends AppCompatActivity implements CardReader.ScanCall
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nfcscanner);
 
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle("Ncoid reader connected.");
+//        Intent resultIntent = new Intent(this, MainActivity.class);
+//        PendingIntent resultPendingIntent = PendingIntent.getActivity(
+//                this,
+//                0,
+//                resultIntent,
+//                PendingIntent.FLAG_UPDATE_CURRENT);
+//        mBuilder.setContentIntent(resultPendingIntent);
+        notification = mBuilder.build();
+        notification.flags |= Notification.FLAG_NO_CLEAR | Notification.FLAG_ONGOING_EVENT;
+
+        mNotifyMgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         myReceiver = new MusicIntentReceiver();
         mAudioManager = (AudioManager) getSystemService(this.AUDIO_SERVICE);
@@ -164,6 +185,7 @@ public class NFCScanner extends AppCompatActivity implements CardReader.ScanCall
             public void run() {
                 loadingMessage.setVisibility(View.GONE);
                 acrActiveMessage.setVisibility(View.VISIBLE);
+                mNotifyMgr.notify(NOTIFICATION_ID, notification);
             }
         });
     }
@@ -178,6 +200,8 @@ public class NFCScanner extends AppCompatActivity implements CardReader.ScanCall
                         Log.i(TAG, "Headset is unplugged");
                         acrx.stop();
                         acrActiveMessage.setVisibility(View.GONE);
+                        mNotifyMgr.cancel(NOTIFICATION_ID);
+
                         break;
                     case 1:
                         Log.i(TAG, "Headset is plugged");

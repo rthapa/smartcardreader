@@ -91,6 +91,7 @@ public class CardReader implements NfcAdapter.ReaderCallback{
                     /*TODO : We're hoping to get result as data bytes with 0x9000 as status, check if this is not recieved*/
                 }
                 int resultLength = result.length;
+                Log.i("status-len", String.valueOf(result.length));
                 byte[] statusWord = {result[resultLength-2], result[resultLength-1]};
                 String status = ApduCommand.ByteArrayToHexString(statusWord);
                 Log.i("status",status);

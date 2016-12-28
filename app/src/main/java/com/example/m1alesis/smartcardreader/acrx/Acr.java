@@ -23,6 +23,12 @@ public class Acr {
     public String firmwareVersion = "";
     public boolean isAcrStarted = false;
     private static final String SAMPLE_LOYALTY_CARD_AID = "F222222222";
+    private static final String ELEMENT_FILE_ID = "0001";
+
+    private int STATUS_SELECT_AID = 0;
+    private int STATUS_SELECT_FILE = 1;
+    private int STATUS_READ_DATA = 2;
+    private int current_status = 0;
 
     int timeout = 5;
     AudioJackReader mReader;
@@ -72,10 +78,29 @@ public class Acr {
             @Override
             public void onPiccResponseApduAvailable(AudioJackReader reader, byte[] responseApdu) {
                 String resultHex = ApduCommand.ByteArrayToHexString(responseApdu);
-                Log.i(TAG, "APDU response : " + resultHex);
+                Log.i(TAG, "APDU response ("+current_status+")" + resultHex);
 
-                /* Power off the PICC. */
-                //mReader.piccPowerOff();
+                if(resultHex.equals("9000")) {
+                    if (current_status == STATUS_SELECT_AID) {
+                        if (mReader.piccPowerOn(timeout, cardType)) {
+                            Log.i(TAG, "selecting file");
+                            byte[] selFile = ApduCommand.HexStringToByteArray("00A40200020001");
+                            current_status = STATUS_SELECT_FILE;
+                            mReader.piccTransmit(timeout, selFile);
+                        } else {
+                            Log.i(TAG, "timed out..");
+                        }
+                    }else if(current_status == STATUS_SELECT_FILE) {
+                        if (mReader.piccPowerOn(timeout, cardType)) {
+                            Log.i(TAG, "reading binary data");
+                            byte[] readBinary = ApduCommand.HexStringToByteArray("00B0000000");
+                            current_status = STATUS_READ_DATA;
+                            mReader.piccTransmit(timeout, readBinary);
+                        } else {
+                            Log.i(TAG, "timed out..");
+                        }
+                    }
+                }
             }
         });
     }
@@ -99,6 +124,7 @@ public class Acr {
             public void run() {
                 //Do something after 100ms
                 if (firmwareVersion.equals("")) {
+                    mReader.getFirmwareVersion();
                     Log.i(TAG, "this is not valid acr ");
                     //mReader.stop();
                 }
@@ -109,7 +135,9 @@ public class Acr {
     public void powerOn(){
         if (mReader.piccPowerOn(timeout, cardType)) {
             Log.i(TAG, "poweron true");
-            mReader.piccTransmit(timeout, ApduCommand.buildCommand(apdu.instructionArr.get("select_application"), SAMPLE_LOYALTY_CARD_AID));
+            byte[] test = ApduCommand.HexStringToByteArray("00A4040005F222222222");
+            /*Transmit the command to the reader with timeout: 5 sec*/
+            mReader.piccTransmit(timeout, test);
         }else{
             Log.i(TAG, "poweron false");
             powerOn();
