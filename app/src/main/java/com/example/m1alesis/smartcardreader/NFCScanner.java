@@ -190,6 +190,20 @@ public class NFCScanner extends AppCompatActivity implements CardReader.ScanCall
         });
     }
 
+    @Override
+    public void apduFileDataRecieved(final String data) {
+        this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Snackbar snackbar = Snackbar
+                        .make(linearLayout, data, Snackbar.LENGTH_LONG);
+                snackbar.show();
+                String dataSanitize = data.replaceAll("[^A-Za-z0-9 ]", "");
+                tagDataInput.setText(dataSanitize);
+            }
+        });
+    }
+
     private class MusicIntentReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {

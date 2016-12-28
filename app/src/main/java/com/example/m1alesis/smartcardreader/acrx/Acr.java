@@ -13,6 +13,8 @@ import com.acs.audiojack.AudioJackReader;
 import com.acs.audiojack.Result;
 import com.example.m1alesis.smartcardreader.util.ApduCommand;
 
+import java.io.UnsupportedEncodingException;
+
 /**
  * Created by m1alesis on 05/12/2016.
  */
@@ -78,29 +80,33 @@ public class Acr {
             @Override
             public void onPiccResponseApduAvailable(AudioJackReader reader, byte[] responseApdu) {
                 String resultHex = ApduCommand.ByteArrayToHexString(responseApdu);
-                Log.i(TAG, "APDU response ("+current_status+")" + resultHex);
+                if(current_status == STATUS_READ_DATA){
+                    try {
+                        String fileData = new String(responseApdu, "UTF-8");
+                        Log.i(TAG, "data found : "+fileData);
+                        acrCallback.apduFileDataRecieved(fileData);
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
+                }
 
                 if(resultHex.equals("9000")) {
                     if (current_status == STATUS_SELECT_AID) {
-                        if (mReader.piccPowerOn(timeout, cardType)) {
-                            Log.i(TAG, "selecting file");
-                            byte[] selFile = ApduCommand.HexStringToByteArray("00A40200020001");
-                            current_status = STATUS_SELECT_FILE;
-                            mReader.piccTransmit(timeout, selFile);
-                        } else {
-                            Log.i(TAG, "timed out..");
-                        }
+                        Log.i(TAG, "selecting file");
+                        byte[] selFile = ApduCommand.buildCommand(apdu.instructionArr.get("select_file"), ELEMENT_FILE_ID);
+                        current_status = STATUS_SELECT_FILE;
+                        mReader.piccTransmit(timeout, selFile);
                     }else if(current_status == STATUS_SELECT_FILE) {
-                        if (mReader.piccPowerOn(timeout, cardType)) {
-                            Log.i(TAG, "reading binary data");
-                            byte[] readBinary = ApduCommand.HexStringToByteArray("00B0000000");
-                            current_status = STATUS_READ_DATA;
-                            mReader.piccTransmit(timeout, readBinary);
-                        } else {
-                            Log.i(TAG, "timed out..");
-                        }
+                        Log.i(TAG, "reading binary data");
+                        byte[] readBinary = ApduCommand.buildCommand(apdu.instructionArr.get("read_binary"), "");
+                        current_status = STATUS_READ_DATA;
+                        mReader.piccTransmit(timeout, readBinary);
                     }
                 }
+
+
+                /* Power off the PICC. */
+                //mReader.piccPowerOff();
             }
         });
     }
@@ -135,9 +141,9 @@ public class Acr {
     public void powerOn(){
         if (mReader.piccPowerOn(timeout, cardType)) {
             Log.i(TAG, "poweron true");
-            byte[] test = ApduCommand.HexStringToByteArray("00A4040005F222222222");
+            byte[] selectAid = ApduCommand.buildCommand(apdu.instructionArr.get("select_application"), SAMPLE_LOYALTY_CARD_AID);
             /*Transmit the command to the reader with timeout: 5 sec*/
-            mReader.piccTransmit(timeout, test);
+            mReader.piccTransmit(timeout, selectAid);
         }else{
             Log.i(TAG, "poweron false");
             powerOn();
@@ -169,5 +175,6 @@ public class Acr {
 
     public interface AcrStatus{
         public void validAcrDeteced();
+        public void apduFileDataRecieved(String data);
     }
 }
