@@ -14,7 +14,7 @@ import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
-    Button launchScanBtn;
+    Button launchScanBtn, launchContactBtn;
 
 
     @Override
@@ -23,6 +23,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         launchScanBtn = (Button) findViewById(R.id.launchScan);
         launchScanBtn.setOnClickListener(this);
+        launchContactBtn = (Button) findViewById(R.id.LaunchContact);
+        launchContactBtn.setOnClickListener(this);
 
     }
 
@@ -32,6 +34,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.launchScan:
                 Intent scannerIntent = new Intent(MainActivity.this, NFCScanner.class);
                 startActivity(scannerIntent);
+                break;
+            case R.id.LaunchContact:
+                Intent contactIntent = new Intent(MainActivity.this, ContactReaderV2.class);
+                startActivity(contactIntent);
                 break;
         }
 

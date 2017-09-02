@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import com.acs.audiojack.AudioJackReader;
 import com.acs.audiojack.Result;
+import com.acs.audiojack.TrackData;
 import com.example.m1alesis.smartcardreader.util.ApduCommand;
 
 import java.io.UnsupportedEncodingException;
@@ -107,6 +108,14 @@ public class Acr {
 
                 /* Power off the PICC. */
                 //mReader.piccPowerOff();
+            }
+        });
+
+        mReader.setOnTrackDataAvailableListener(new AudioJackReader.OnTrackDataAvailableListener(){
+
+            @Override
+            public void onTrackDataAvailable(AudioJackReader audioJackReader, TrackData trackData) {
+                //Log.i();
             }
         });
     }

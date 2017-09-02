@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.3"
+    buildToolsVersion '25.0.0'
 
     defaultConfig {
         applicationId "com.example.m1alesis.smartcardreader"
@@ -22,7 +22,11 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:23.4.0'
+    compile 'com.android.support:appcompat-v7:23.0.0'
     compile 'com.android.support:design:23.0.0'
     compile files('libs/acsaj-1.0.0.jar')
+    compile files('libs/commons-lang3-3.6.jar')
+    compile files('libs/commons-collections4-4.1.jar')
+    compile 'com.noveogroup.android:android-logger:1.3.5'
+    compile 'commons-io:commons-io:2.4'
 }
