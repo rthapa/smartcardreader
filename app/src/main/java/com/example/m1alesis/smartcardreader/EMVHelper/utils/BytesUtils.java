@@ -139,6 +139,45 @@ public final class BytesUtils {
         return ret;
     }
 
+    public static String toHexString(byte[] buffer) {
+
+        String bufferString = "";
+
+        if (buffer != null) {
+
+            for (int i = 0; i < buffer.length; i++) {
+
+                String hexChar = Integer.toHexString(buffer[i] & 0xFF);
+                if (hexChar.length() == 1) {
+                    hexChar = "0" + hexChar;
+                }
+
+                bufferString += hexChar.toUpperCase(Locale.US) + " ";
+            }
+        }
+
+        return bufferString;
+    }
+
+    public static String[] toHexArray(byte[] buffer) {
+
+        String[] myArray = new String[buffer.length];
+        if (buffer != null) {
+
+            for (int i = 0; i < buffer.length; i++) {
+
+                String hexChar = Integer.toHexString(buffer[i] & 0xFF);
+                if (hexChar.length() == 1) {
+                    hexChar = "0" + hexChar;
+                }
+
+                myArray[i] = hexChar.toUpperCase(Locale.US);
+            }
+        }
+
+        return myArray;
+    }
+
     public static byte[] toByteArray(int value) {
         return new byte[]{(byte)(value >> 24), (byte)(value >> 16), (byte)(value >> 8), (byte)value};
     }

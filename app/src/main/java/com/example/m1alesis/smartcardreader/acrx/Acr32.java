@@ -147,7 +147,13 @@ public class Acr32 implements IProvider {
                 Log.i("card-detail", String.valueOf(card.getAid()));
                 Log.i("card-detail", String.valueOf(card.getAtrDescription()));
 
-                //Log.i("card-detail", card.getHolderFirstname());
+                if(card.getHolderFirstname() != null){
+                    Log.i("card-detail", card.getHolderFirstname());
+                }
+
+                if(card.getHolderLastname() != null){
+                    Log.i("card-detail", card.getHolderLastname());
+                }
                 //Log.i("card-detail", String.valueOf(card.getHolderLastname()));
                 Log.i("card-detail", String.valueOf(card.getExpireDate()));
                 Log.i("card-detail", card.getCardNumber());

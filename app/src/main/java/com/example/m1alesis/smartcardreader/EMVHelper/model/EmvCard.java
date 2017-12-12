@@ -77,6 +77,11 @@ public class EmvCard extends AbstractData {
 	private boolean nfcLocked;
 
 	/**
+	 * Card currency
+	 */
+	private String currency;
+
+	/**
 	 * Method used to get the field aid
 	 *
 	 * @return the aid
@@ -93,6 +98,14 @@ public class EmvCard extends AbstractData {
 	 */
 	public void setAid(final String aid) {
 		this.aid = aid;
+	}
+
+	public void setCurrency(String currency){
+		this.currency = currency;
+	}
+
+	public String getCurrency(){
+		return this.currency;
 	}
 
 	/**

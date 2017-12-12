@@ -11,6 +11,7 @@ import com.example.m1alesis.smartcardreader.EMVHelper.iso7816emv.EmvTerminal;
 import com.example.m1alesis.smartcardreader.EMVHelper.iso7816emv.TLV;
 import com.example.m1alesis.smartcardreader.EMVHelper.iso7816emv.TagAndLength;
 import com.example.m1alesis.smartcardreader.EMVHelper.model.Afl;
+import com.example.m1alesis.smartcardreader.EMVHelper.model.CVM;
 import com.example.m1alesis.smartcardreader.EMVHelper.model.EmvCard;
 import com.example.m1alesis.smartcardreader.EMVHelper.model.EmvTransactionRecord;
 import com.example.m1alesis.smartcardreader.EMVHelper.model.enums.CurrencyEnum;
@@ -20,6 +21,7 @@ import com.example.m1alesis.smartcardreader.EMVHelper.utils.TlvUtil;
 import com.example.m1alesis.smartcardreader.EMVHelper.utils.TrackUtils;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +29,9 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -80,6 +84,11 @@ public class EmvParser {
 	private EmvCard card;
 
 	/**
+	 * CVM obj
+	 */
+	private CVM cvm;
+
+	/**
 	 * Constructor
 	 *
 	 * @param pProvider
@@ -91,6 +100,7 @@ public class EmvParser {
 		provider = pProvider;
 		contactLess = pContactLess;
 		card = new EmvCard();
+		cvm = new CVM();
 	}
 
 	/**
@@ -344,6 +354,25 @@ public class EmvParser {
 		return bufferString;
 	}
 
+	private String[] toHexArray(byte[] buffer) {
+
+			String[] myArray = new String[buffer.length];
+			if (buffer != null) {
+
+			for (int i = 0; i < buffer.length; i++) {
+
+				String hexChar = Integer.toHexString(buffer[i] & 0xFF);
+				if (hexChar.length() == 1) {
+					hexChar = "0" + hexChar;
+				}
+
+				 myArray[i] = hexChar.toUpperCase(Locale.US);
+			}
+		}
+
+		return myArray;
+	}
+
 	public String getStatus(String status, String position) {
 		String result = "";
 		status = status.replaceAll("\\s+","");
@@ -449,6 +478,7 @@ public class EmvParser {
 				card.setType(findCardScheme(aid, card.getCardNumber()));
 				card.setApplicationLabel(pApplicationLabel);
 				card.setLeftPinTry(getLeftPinTry());
+				Log.i("errorcheck-pinTry", Integer.toString(card.getLeftPinTry()));
 			}
 		}
 		return ret;
@@ -497,7 +527,7 @@ public class EmvParser {
 		byte[] pdol = TlvUtil.getValue(pSelectResponse, EmvTags.PDOL);
 		// Send GPO Command
 		byte[] gpo = getGetProcessingOptions(pdol, pProvider);
-		Log.i("errorcheck-aa", toHexString(gpo));
+		Log.i("errorcheck-gpo-is :", toHexString(gpo));
 
 		if( ResponseUtils.isEquals(gpo, SwEnum.SW_61)){
 			String resultHex = toHexString(gpo);
@@ -562,6 +592,7 @@ public class EmvParser {
 					// Extract card data
 					if (ResponseUtils.isSucceed(info)) {
 						extractCardHolderName(info);
+						extractCVMList(info);
 						if (TrackUtils.extractTrack2Data(card, info)) {
 							return true;
 						}
@@ -672,6 +703,32 @@ public class EmvParser {
 				card.setHolderFirstname(StringUtils.trimToNull(name[0]));
 				card.setHolderLastname(StringUtils.trimToNull(name[1]));
 			}
+		}
+
+		//set currency in the card
+		byte[] cardHolderCurrency = TlvUtil.getValue(pData, EmvTags.APPLICATION_CURRENCY_CODE);
+		if (cardHolderCurrency != null) {
+			//String currency = toHexString(cardHolderCurrency);
+			String currency = BytesUtils.bytesToStringNoSpace(cardHolderCurrency);
+			//remove 0's in front
+			currency = currency.replaceFirst("^0+(?!$)", "");
+			card.setCurrency(currency);
+		}
+	}
+
+	protected void extractCVMList(final byte[] pData) throws CommunicationException {
+		// Extract Card Holder name (if exist)
+		byte[] CVMList = TlvUtil.getValue(pData, EmvTags.CVM_LIST);
+		if (CVMList != null) {
+
+			//byte[] data = provider.transceive(toByteArray("0020008008248433FFFFFFFFFF"));
+			//Log.i("errorcheck-verify", toHexString(data));
+
+			//String[] name = StringUtils.split(new String(cardHolderByte).trim(), CARD_HOLDER_NAME_SEPARATOR);
+			Log.i("errorcheck-cvmlist", toHexString(pData));
+			Log.i("errorcheck-cvmlist", toHexString(CVMList));
+			//Log.i("errorcheck-cvmlist", toHexString(cardHolderByte));
+			cvm.setCVMRule(CVMList, card);
 		}
 	}
 
