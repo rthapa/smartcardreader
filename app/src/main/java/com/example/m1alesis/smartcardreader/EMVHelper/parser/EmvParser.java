@@ -729,6 +729,7 @@ public class EmvParser {
 			Log.i("errorcheck-cvmlist", toHexString(CVMList));
 			//Log.i("errorcheck-cvmlist", toHexString(cardHolderByte));
 			cvm.setCVMRule(CVMList, card);
+			card.setCvm(cvm);
 		}
 	}
 

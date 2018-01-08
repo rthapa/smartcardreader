@@ -81,6 +81,16 @@ public class EmvCard extends AbstractData {
 	 */
 	private String currency;
 
+	private CVM cvm;
+
+	public CVM getCvm(){
+		return this.cvm;
+	}
+	
+	public void setCvm(CVM cvm ){
+		this.cvm = cvm;
+	}
+
 	/**
 	 * Method used to get the field aid
 	 *

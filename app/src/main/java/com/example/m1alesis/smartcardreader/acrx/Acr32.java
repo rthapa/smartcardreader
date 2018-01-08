@@ -102,7 +102,7 @@ public class Acr32 implements IProvider {
 
             @Override
             public void onTrackDataAvailable(AudioJackReader audioJackReader, TrackData trackData) {
-                //Log.i();
+                Log.i("track-data-test","track data has been reecieved");
             }
         });
     }
@@ -160,6 +160,8 @@ public class Acr32 implements IProvider {
                 Log.i("card-detail", String.valueOf(card.getListTransactions()));
 
                 Log.i("card-detail", String.valueOf(card.getLeftPinTry()));
+
+                Log.i("card-detail-cvm", String.valueOf(card.getCvm().getCVMList()));
 
             }
         } catch (ReaderException e) {

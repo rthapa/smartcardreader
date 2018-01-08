@@ -6,3 +6,10 @@
 .DS_Store
 /build
 /captures
+
+.idea/.name
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
+build.gradle
+gradle/wrapper/gradle-wrapper.properties

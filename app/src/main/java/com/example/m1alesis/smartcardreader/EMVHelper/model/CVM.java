@@ -2,13 +2,13 @@ package com.example.m1alesis.smartcardreader.EMVHelper.model;
 
 import android.util.Log;
 
-import com.example.m1alesis.smartcardreader.EMVHelper.enums.CommandEnum;
 import com.example.m1alesis.smartcardreader.EMVHelper.model.enums.CurrencyEnum;
 import com.example.m1alesis.smartcardreader.EMVHelper.utils.BytesUtils;
-import com.example.m1alesis.smartcardreader.EMVHelper.utils.CommandApdu;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -43,7 +43,9 @@ public class CVM extends AbstractData{
     //String[] ArrayList = new String[] {"00","02","03","06", "07", "08", "09"};
     ArrayList<String> applicableCVRules = new ArrayList<>();
     /*CVMs that we must perform*/
-    ArrayList<String> cvmToBePerformed = new ArrayList<>();
+    ArrayList<Double> cvmToBePerformed = new ArrayList<>();
+
+    HashMap<Double, String> cvmethods = new HashMap<Double, String>();
 
     public CVM(){
 
@@ -65,6 +67,17 @@ public class CVM extends AbstractData{
         applicableCVRules.add("07");
         applicableCVRules.add("08");
         applicableCVRules.add("09");
+
+        /**
+         *CV methods that our device supports
+         * */
+        cvmethods.put(CVM_PLAIN_PIN, "00000001");
+        cvmethods.put(CV_SIGNATURE, "00011110");
+        cvmethods.put(CV_NO_CVM, "00011111");
+    }
+
+    public ArrayList<Double> getCVMList(){
+        return this.cvmToBePerformed;
     }
 
     public void setCVMRule(final byte[] CVMByte, EmvCard card){
@@ -88,14 +101,55 @@ public class CVM extends AbstractData{
         Log.i("errorcheck-term-curr", nepCurrencyCode);
         cvmToBePerformed = new ArrayList<>();
         Boolean first = true;
+        Boolean skipNext = false;
         for (int i = 0; i < hexArray.length; i++) {
+
+            if(skipNext){
+                skipNext = false;
+                continue;
+            }
+
             //42
             if(first){
                 String binary = hexToBinary(hexArray[i]);
 
-                Log.i("errorcheck-binary-"+hexArray[i],binary); //20
+                Log.i("errorcheck-trying", hexArray[i]);
+                if(isPlainPin(binary)){
+                    Log.i("errorcheck-trying", "its plain pin");
+                    cvmToBePerformed.add(CVM_PLAIN_PIN);
+                }else if(isSignature(binary)){
+                    Log.i("errorcheck-trying", "its signature");
+                    cvmToBePerformed.add(CV_SIGNATURE);
+                }else if(isNoCVM(binary)){
+                    Log.i("errorcheck-trying", "its no cvm");
+                    cvmToBePerformed.add(CV_NO_CVM);
+                }else{
+                    Log.i("errorcheck-trying", "its no match");
+                    skipNext = true;
+                    continue;
+                }
+
+
+
+//                Iterator entries = cvmethods.entrySet().iterator();
+//                while (entries.hasNext()) {
+//                    Map.Entry entry = (Map.Entry) entries.next();
+//                    Double key = (Double)entry.getKey();
+//                    String value = (String)entry.getValue();
+//
+//
+//                    int MASK1 = Integer.parseInt(binary, 2);
+//                    int MASK2 = Integer.parseInt(value, 2);
+//                    int result = MASK1 & MASK2;
+//
+//                    Log.i("errorcheck-hmap","hex : "+hexArray[i]+", key : "+key+"result : "+result);
+//
+//                }
+
+
+                //Log.i("errorcheck-binary-"+hexArray[i],binary); //20
                 //add this rule to be performed list
-                cvmToBePerformed.add(hexArray[i]);
+                //cvmToBePerformed.add(hexArray[i]);
                 first = false;
             }else{
                 //if this rule is applicable to us
@@ -110,7 +164,7 @@ public class CVM extends AbstractData{
                     //remove the last added element from CVM to be performed
                     cvmToBePerformed.remove(cvmToBePerformed.size() - 1);
                 }else{
-                    cvmToBePerformed.add(hexArray[i]);
+                    //cvmToBePerformed.add(hexArray[i]);
                 }
 
                 first = true;
@@ -161,9 +215,98 @@ public class CVM extends AbstractData{
         return positions;
     }
 
-    String hexToBinary(String hex) {
-        int i = Integer.parseInt(hex, 16);
-        String bin = Integer.toBinaryString(i);
+//    String hexToBinary(String hex) {
+//        int i = Integer.parseInt(hex, 16);
+//        String bin = Integer.toBinaryString(i);
+//        return bin;
+//    }
+
+    public static String hexToBinary(String hex) {
+        int len = hex.length() * 4;
+        String bin = new BigInteger(hex, 16).toString(2);
+
+        //left pad the string result with 0s if converting to BigInteger removes them.
+        if(bin.length() < len){
+            int diff = len - bin.length();
+            String pad = "";
+            for(int i = 0; i < diff; ++i){
+                pad = pad.concat("0");
+            }
+            bin = pad.concat(bin);
+        }
         return bin;
+    }
+
+    public boolean isPlainPin(String binaryString){
+        //String[] alphabets = binaryString.split("");
+        List<String> alphabets = split(binaryString);
+        //char[] x = binaryString.toCharArray();
+        //x x 0 0 0 0 0 1
+        //01000010
+        //Log.i("bin-test",binaryString);
+        //Log.i("bin-test", String.valueOf(alphabets));
+//        Log.i("bin-test",alphabets.get(7));
+//        Log.i("bin-test",alphabets.get(6]);
+//        Log.i("bin-test",alphabets[5]);
+//        Log.i("bin-test",alphabets[4]);
+//        Log.i("bin-test",alphabets[3]);
+//        Log.i("bin-test",alphabets[2]);
+        if(alphabets.get(7).equals("1") &&
+                alphabets.get(6).equals("0") &&
+                alphabets.get(5).equals("0") &&
+                alphabets.get(4).equals("0") &&
+                alphabets.get(3).equals("0") &&
+                alphabets.get(2).equals("0")){
+            return true;
+        }
+
+        return false;
+    }
+
+
+    public boolean isSignature(String binaryString){
+        List<String> alphabets = split(binaryString);
+        // x x 0 1 1 1 1 0 Signature (paper)
+
+        if(alphabets.get(7).equals("0") &&
+                alphabets.get(6).equals("1") &&
+                alphabets.get(5).equals("1") &&
+                alphabets.get(4).equals("1") &&
+                alphabets.get(3).equals("1") &&
+                alphabets.get(2).equals("0")){
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean isNoCVM(String binaryString){
+        List<String> alphabets = split(binaryString);
+        // x x 0 1 1 1 1 1 No CVM required
+
+        if(alphabets.get(7).equals("1") &&
+                alphabets.get(6).equals("1") &&
+                alphabets.get(5).equals("1") &&
+                alphabets.get(4).equals("1") &&
+                alphabets.get(3).equals("1") &&
+                alphabets.get(2).equals("0")){
+            return true;
+        }
+
+        return false;
+    }
+
+    public List<String> split(String inString)
+    {
+        List<String> outList = new ArrayList<>();
+        String[]     test    = inString.split("");
+
+        for(String s : test)
+        {
+            if(s != null && s.length() > 0)
+                outList.add(s);
+        }
+
+        return outList;
     }
 }
